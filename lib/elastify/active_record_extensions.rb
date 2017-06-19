@@ -93,7 +93,6 @@ module Elastify
 
             module ClassMethods
                 def elastifind(dsl)
-                    puts dsl
                     return ElasticSearchHelper::Document.new(self.elastify_options).search(dsl)
                 end
             end
