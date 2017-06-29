@@ -102,7 +102,7 @@ module Elastify
                 rescue => exception
                     puts exception
                 ensure
-                    ElasticSearchHelper::Connector.create_mapping(self.elastify_options)
+                    ElasticSearchHelper::Connector.create_mapping(self.elastify_options) if self.elastify_options[:map].present?
                 end
 
                 def elastify_reset
