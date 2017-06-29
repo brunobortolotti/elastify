@@ -56,9 +56,17 @@ module Elastify
                 url = "#{options[:base_url]}/#{options[:index]}/#{options[:type]}/_search"
                 response = SearchResultSet.new(RestClient.post(url, dsl.to_json, {}))
             end
-            def self.destroy_type options
-                url = "#{options[:base_url]}/#{options[:index]}/#{options[:type]}"
+            def self.create_index options
+                url = "#{options[:base_url]}/#{options[:index]}"
+                response = JSON.parse(RestClient.put(url, {}.to_json, {})).to_hash
+            end
+            def self.destroy_index options
+                url = "#{options[:base_url]}/#{options[:index]}"
                 response = JSON.parse(RestClient.delete(url)).to_hash
+            end
+            def self.create_mapping options
+                url = "#{options[:base_url]}/#{options[:index]}/_mappings/#{options[:type]}"
+                response = JSON.parse(RestClient.put(url, options[:map].to_json, {})).to_hash
             end
         end
         class SearchResultSet

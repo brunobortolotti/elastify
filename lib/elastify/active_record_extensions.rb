@@ -15,7 +15,8 @@ module Elastify
                 self.elastify_options = {
                     base_url: Elastify.defaults[:base_url],
                     index: elastify_options[:index] || Elastify.defaults[:default_index],
-                    type: elastify_options[:type] || Elastify.defaults[:default_type]
+                    type: elastify_options[:type] || Elastify.defaults[:default_type],
+                    map: elastify_options[:map] || Elastify.defaults[:default_map]
                 }
 
                 self.elastify_options.each do |key, value|
@@ -92,8 +93,24 @@ module Elastify
             end 
 
             module ClassMethods
-                def elastifind(dsl)
+                def elastify_search(dsl)
                     return ElasticSearchHelper::Document.new(self.elastify_options).search(dsl)
+                end
+
+                def elastify_init
+                    ElasticSearchHelper::Connector.create_index(self.elastify_options)
+                rescue => exception
+                    puts exception
+                ensure
+                    ElasticSearchHelper::Connector.create_mapping(self.elastify_options)
+                end
+
+                def elastify_reset
+                    ElasticSearchHelper::Connector.destroy_index(self.elastify_options)
+                rescue => exception 
+                    puts exception
+                ensure
+                    self.elastify_init
                 end
             end
         end
