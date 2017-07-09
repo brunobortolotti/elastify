@@ -100,22 +100,6 @@ module Elastify
                 def elastify_scroll(scroll_id: nil, scroll_timer: "1m")
                     return ElasticSearchHelper::Document.new(self.elastify_options).scroll(scroll_id, scroll_timer)
                 end
-
-                def elastify_init
-                    ElasticSearchHelper::Connector.create_index(self.elastify_options)
-                rescue => exception
-                    puts exception
-                ensure
-                    ElasticSearchHelper::Connector.create_mapping(self.elastify_options) if self.elastify_options[:map].present?
-                end
-
-                def elastify_reset
-                    ElasticSearchHelper::Connector.destroy_index(self.elastify_options)
-                rescue => exception 
-                    puts exception
-                ensure
-                    self.elastify_init
-                end
             end
         end
 
