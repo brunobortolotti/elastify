@@ -93,8 +93,12 @@ module Elastify
             end 
 
             module ClassMethods
-                def elastify_search(dsl)
-                    return ElasticSearchHelper::Document.new(self.elastify_options).search(dsl)
+                def elastify_search(dsl: nil, scroll_timer: "1m")
+                    return ElasticSearchHelper::Document.new(self.elastify_options).search(dsl, scroll_timer)
+                end
+                
+                def elastify_scroll(scroll_id: nil, scroll_timer: "1m")
+                    return ElasticSearchHelper::Document.new(self.elastify_options).scroll(scroll_id, scroll_timer)
                 end
 
                 def elastify_init
