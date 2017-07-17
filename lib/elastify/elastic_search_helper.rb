@@ -80,7 +80,8 @@ module Elastify
             end
             def self.create_mapping options
                 url = "#{options[:base_url]}/#{options[:index]}/_mappings/#{options[:type]}"
-                response = JSON.parse(RestClient.put(url, options[:map].to_json, {})).to_hash
+                puts options[:map]
+                response = JSON.parse(RestClient.put(url, options[:map].squish, {})).to_hash
             end
         end
         class SearchResultSet

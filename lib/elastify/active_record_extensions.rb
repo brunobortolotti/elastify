@@ -1,22 +1,23 @@
 require 'active_record'
 require 'backgrounded'
 require 'elastify/elastic_search_helper'
+require 'elastify'
 
 module Elastify
     module ActiveRecordExtensions
         extend ActiveSupport::Concern
 
         module ClassMethods
-            def elastify elastify_options = {}, &block
+            def elastify type, index, &block
                 include Elastify::ActiveRecordExtensions::LocalMethods
                 cattr_accessor :elastify_options, :elastify_model_block
                 attr_accessor :elastify_serialized_document
 
                 self.elastify_options = {
-                    base_url: Elastify.defaults[:base_url],
-                    index: elastify_options[:index] || Elastify.defaults[:default_index],
-                    type: elastify_options[:type] || Elastify.defaults[:default_type],
-                    map: elastify_options[:map] || Elastify.defaults[:default_map]
+                    base_url: Elastify.configs[:base_url],
+                    index: index,
+                    type: type,
+                    map: Elastify.mappings.symbolize_keys[type.to_sym]
                 }
 
                 self.elastify_options.each do |key, value|
@@ -28,9 +29,13 @@ module Elastify
                 if block_given?
                     self.elastify_model_block = block
                 else 
-                    self.elastify_model_block = Proc.new { |item|
-                        next Hash.new
-                    }
+                    if self.respond_to?(:to_elastify)
+                        self.elastify_model_block = Proc.new { |item| next item.to_elastify }
+                    elsif self.respond_to?(:to_serial)
+                        self.elastify_model_block = Proc.new { |item| next item.to_serial }
+                    else   
+                        self.elastify_model_block = Proc.new { |item| next item.serializable_hash }
+                    end
                 end
             end
         end
