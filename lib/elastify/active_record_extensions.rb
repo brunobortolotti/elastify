@@ -80,21 +80,21 @@ module Elastify
                 define_model_callbacks :elastify_sync
                 # define_model_callbacks :elastify_serialize
 
-                after_create { |item|
+                after_commit on: :create do |item|
                     item.elastify_create
-                }
+                end
 
-                after_update { |item|
+                after_commit on: :update do |item|
                     item.elastify_update
-                }
+                end
 
-                after_destroy { |item|
+                after_commit on: :destroy do |item|
                     item.elastify_destroy
-                }
+                end
 
-                before_elastify_sync { |item|
+                before_elastify_sync do |item|
                     item.elastify_serialized_document = self.elastify_model_block.call(item)
-                }
+                end
             end 
 
             module ClassMethods
