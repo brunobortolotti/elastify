@@ -1,7 +1,11 @@
 require 'elastify/version'
+require 'elastify/configurators/model'
 require 'elastify/active_record_extensions'
-require 'elastify/model'
-require 'elastify/mapping'
+require 'elastify/helpers/elastic_search/connector'
+require 'elastify/helpers/elastic_search/document'
+require 'elastify/helpers/elastic_search/search_result'
+require 'elastify/helpers/elastic_search/search_result_collection'
+
 
 module Elastify
     
