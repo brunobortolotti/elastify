@@ -9,20 +9,19 @@ module Elastify::ActiveRecordExtensions
         extend ActiveSupport::Concern
 
         def elastify_setup(&block)
+            include Elastify::ActiveRecordExtensions::LocalMethods
             cattr_accessor :elastify_options
             attr_accessor :elastify_serialized_document
 
             config = Elastify::Configurators::Model.new
-            if block_given?
-                yield(config)
-            end
-            self.elastify_options = {
-                base_url: Elastify.configs[:base_url],
-                index: config.map_index,
-                type: config.map_type,
-                map: config.map_mapping
-            }
-            puts self.elastify_options
+            yield(config) if block_given?
+            self.elastify_options = {} if self.elastify_options.blank?
+            self.elastify_options[:base_url] = Elastify.configs[:base_url]
+            self.elastify_options[:index] = config.opt_index if config.opt_index.present?
+            self.elastify_options[:type] = config.opt_type if config.opt_type.present?
+            self.elastify_options[:map] = config.opt_mapping if config.opt_mapping.present?
+            self.elastify_options[:decode] = config.opt_decode if config.opt_decode.present?
+            self.elastify_options[:encode] = config.opt_encode if config.opt_encode.present?
         end
 
         def elastify_search(dsl: nil, scroll_timer: "1m")
@@ -87,14 +86,14 @@ module Elastify::ActiveRecordExtensions
             end
 
             before_elastify_sync do |item|
-                if self.class.elastify_mapping.map_encode.present?
-                    parser = self.class.elastify_mapping.map_encode
+                if self.class.elastify_options[:encode].present?
+                    encoder = self.class.elastify_options[:encode]
                 elsif self.respond_to?(:to_serial)
-                    parser = Proc.new { |item| next item.to_serial }
+                    encoder = Proc.new { |item| next item.to_serial }
                 else
-                    parser = Proc.new { |item| next item.serializable_hash }
+                    encoder = Proc.new { |item| next item.serializable_hash }
                 end
-                item.elastify_serialized_document = parser.call(item)
+                item.elastify_serialized_document = encoder.call(item)
             end
         end
     end

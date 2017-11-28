@@ -3,23 +3,23 @@ module Elastify
         module ElasticSearch
             class Document
                 cattr_accessor :options
-                def initialize options = {}
-                    self.options = options
+                def initialize(options = {})
+                    @options = options
                 end
-                def create model
-                    Connector.create(self.options, model)
+                def create(model)
+                    Connector.create(@options, model)
                 end
-                def update model
-                    Connector.update(self.options, model)
+                def update(model)
+                    Connector.update(@options, model)
                 end
-                def destroy model
-                    Connector.destroy(self.options, model)
+                def destroy(model)
+                    Connector.destroy(@options, model)
                 end
-                def search dsl, scroll_timer = nil
-                    Connector.search(self.options, dsl, scroll_timer)
+                def search(dsl, scroll_timer = nil)
+                    Connector.search(@options, dsl, scroll_timer)
                 end
-                def scroll scroll_id, scroll_timer = nil
-                    Connector.scroll(self.options, scroll_id, scroll_timer)
+                def scroll(scroll_id, scroll_timer = nil)
+                    Connector.scroll(@options, scroll_id, scroll_timer)
                 end
             end
         end

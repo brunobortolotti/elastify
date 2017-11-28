@@ -39,7 +39,7 @@ module Elastify
                     url = "#{options[:base_url]}/#{options[:index]}/#{options[:type]}/_search"
                     url += "?scroll=#{scroll_timer}" if scroll_timer.present?
                     puts url
-                    response = SearchResultSet.new(RestClient.post(url, dsl.to_json, {}))
+                    response = Elastify::Helpers::ElasticSearch::SearchResultCollection.new(RestClient.post(url, dsl.to_json, {}), options)
                 end
                 def self.scroll options, scroll_id, scroll_timer
                     if scroll_id.blank?
@@ -48,7 +48,7 @@ module Elastify
                     url = "#{options[:base_url]}/_search/scroll"
                     dsl = { scroll: scroll_timer, scroll_id: scroll_id }
                     puts dsl.to_json
-                    response = SearchResultSet.new(RestClient.post(url, dsl.to_json, {}))
+                    response = Elastify::Helpers::ElasticSearch::SearchResultCollection.new(RestClient.post(url, dsl.to_json, {}), options)
                 end
                 def self.create_index options
                     url = "#{options[:base_url]}/#{options[:index]}"

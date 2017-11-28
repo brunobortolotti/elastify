@@ -1,4 +1,7 @@
 require 'elastify/version'
+require 'elastify/errors/base'
+require 'elastify/errors/bad_request'
+require 'elastify/errors/connection'
 require 'elastify/configurators/model'
 require 'elastify/active_record_extensions'
 require 'elastify/helpers/elastic_search/connector'

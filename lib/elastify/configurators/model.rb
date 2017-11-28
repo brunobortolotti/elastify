@@ -2,26 +2,26 @@ module Elastify
     module Configurators
         class Model
 
-            attr_accessor :map_index, :map_type, :map_mapping, :map_encode, :map_decode
+            attr_accessor :opt_index, :opt_type, :opt_mapping, :opt_encode, :opt_decode
 
             def index(index)
-                @map_index = index
+                @opt_index = index
             end
 
             def type(type)
-                @map_type = type
+                @opt_type = type
             end
 
             def mapping(&block)
-                @map_mapping = block.call() if block_given?
+                @opt_mapping = block.call() if block_given?
             end
 
             def encode(&block)
-                @map_encode = block if block_given?
+                @opt_encode = block if block_given?
             end
 
             def decode(&block)
-                @map_decode = block if block_given?
+                @opt_decode = block if block_given?
             end
         end
     end

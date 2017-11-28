@@ -2,18 +2,21 @@ module Elastify
     module Helpers
         module ElasticSearch
             class SearchResultCollection
-                attr_accessor :scroll_id, :took, :timed_out, :shards_total, :shards_successful, :shards_failed, :hits_total, :hits_maxscore, :hits
-                def initialize elasticsearch_search_result
+                attr_accessor :scroll_id, :took, :timed_out, :shards_total, :shards_successful, :shards_failed, :hits_total, :hits_maxscore, :hits,
+                              :elastify_options
+
+                def initialize(elasticsearch_search_result, elastify_options)
                     esr = JSON.parse(elasticsearch_search_result)
-                    self.scroll_id = esr["_scroll_id"]
-                    self.took = esr["took"]
-                    self.timed_out = esr["timed_out"]
-                    self.shards_total = esr["_shards"]["total"]
-                    self.shards_successful = esr["_shards"]["successful"]
-                    self.shards_failed = esr["_shards"]["failed"]
-                    self.hits_total = esr["hits"]["total"]
-                    self.hits_maxscore = esr["hits"]["maxscore"]
-                    self.hits = esr["hits"]["hits"].map{ |hit| SearchResult.new(hit) }
+                    @scroll_id = esr["_scroll_id"]
+                    @took = esr["took"]
+                    @timed_out = esr["timed_out"]
+                    @shards_total = esr["_shards"]["total"]
+                    @shards_successful = esr["_shards"]["successful"]
+                    @shards_failed = esr["_shards"]["failed"]
+                    @hits_total = esr["hits"]["total"]
+                    @hits_maxscore = esr["hits"]["maxscore"]
+                    @hits = esr["hits"]["hits"].map{ |hit| Elastify::Helpers::ElasticSearch::SearchResult.new(hit, elastify_options) }
+                    @elastify_options = elastify_options
                 end
             end
         end
