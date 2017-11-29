@@ -22,14 +22,15 @@ module Elastify::ActiveRecordExtensions
             self.elastify_options[:map] = config.opt_mapping if config.opt_mapping.present?
             self.elastify_options[:decode] = config.opt_decode if config.opt_decode.present?
             self.elastify_options[:encode] = config.opt_encode if config.opt_encode.present?
+            self.elastify_options[:scroll_timeout] = config.opt_scroll_timeout if config.opt_scroll_timeout.present?
         end
 
-        def elastify_search(dsl: nil, scroll_timer: "1m")
-            return Elastify::Helpers::ElasticSearch::Document.new(self.elastify_options).search(dsl, scroll_timer)
+        def elastify_search(dsl: nil, scroll_timeout: nil)
+            return Elastify::Helpers::ElasticSearch::Document.new(self.elastify_options).search(dsl, scroll_timeout)
         end
 
-        def elastify_scroll(scroll_id: nil, scroll_timer: "1m")
-            return Elastify::Helpers::ElasticSearch::Document.new(self.elastify_options).scroll(scroll_id, scroll_timer)
+        def elastify_scroll(scroll_id: nil, scroll_timeout: nil)
+            return Elastify::Helpers::ElasticSearch::Document.new(self.elastify_options).scroll(scroll_id, scroll_timeout)
         end
     end
 

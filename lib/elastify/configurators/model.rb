@@ -2,7 +2,7 @@ module Elastify
     module Configurators
         class Model
 
-            attr_accessor :opt_index, :opt_type, :opt_mapping, :opt_encode, :opt_decode
+            attr_accessor :opt_index, :opt_type, :opt_mapping, :opt_encode, :opt_decode, :opt_scroll_timeout
 
             def index(index)
                 @opt_index = index
@@ -22,6 +22,10 @@ module Elastify
 
             def decode(&block)
                 @opt_decode = block if block_given?
+            end
+
+            def scroll_timeout(scroll_timeout)
+                @opt_scroll_timeout = scroll_timeout
             end
         end
     end

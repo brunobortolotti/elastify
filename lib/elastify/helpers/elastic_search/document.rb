@@ -15,11 +15,11 @@ module Elastify
                 def destroy(model)
                     Connector.destroy(@options, model)
                 end
-                def search(dsl, scroll_timer = nil)
-                    Connector.search(@options, dsl, scroll_timer)
+                def search(dsl, scroll_timeout = nil)
+                    Connector.search(@options, dsl, scroll_timeout)
                 end
-                def scroll(scroll_id, scroll_timer = nil)
-                    Connector.scroll(@options, scroll_id, scroll_timer)
+                def scroll(scroll_id, scroll_timeout = nil)
+                    Connector.scroll(@options, scroll_id, scroll_timeout)
                 end
             end
         end
