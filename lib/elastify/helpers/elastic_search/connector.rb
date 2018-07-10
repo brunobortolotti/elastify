@@ -69,7 +69,6 @@ module Elastify
 
                 def self.create_mapping(options)
                     url = "#{options[:base_url]}/#{options[:index]}/_mappings/#{options[:type]}"
-                    puts options[:map]
                     JSON.parse(RestClient.put(url, options[:map].squish, {})).to_hash
                 end
             end

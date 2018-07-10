@@ -7,7 +7,7 @@ Gem::Specification.new do |spec|
   spec.name          = "elastify"
   spec.version       = Elastify::VERSION
   spec.authors       = ["Bruno Bortolotti Ribeiro"]
-  spec.email         = ["b2bortolotti@gmail.com"]
+  spec.email         = ["brunobortolotti@icloud.com"]
 
   spec.summary       = %q{A gem to help with ActiveRecord-ElasticSeach integration}
   spec.description   = %q{A gem to help with ActiveRecord-ElasticSeach integration}

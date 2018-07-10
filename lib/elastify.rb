@@ -1,4 +1,6 @@
 require 'elastify/version'
+require 'elastify/config'
+require 'elastify/model'
 require 'elastify/errors/base'
 require 'elastify/errors/bad_request'
 require 'elastify/errors/connection'
@@ -11,35 +13,42 @@ require 'elastify/helpers/elastic_search/search_result_collection'
 
 
 module Elastify
-    
+
     class << self
-        def configure &block
-            mappings = {}
-            configs = OpenStruct.new({
-                base_url: 'http://localhost:9200',
-                mappings_path: Rails.root.join('config/elastify/mappings')
-            })
-            block.call(configs) if block_given?
-            dir = configs.mappings_path
-            if Dir.exist?(dir)
-                Dir.glob("#{dir}/*.json") do |file_path|
-                    mappings[File.basename(file_path, '.json')] = JSON.parse(File.read(file_path))
-                end
-            end
-            Rails.application.config.elastify = {
-                configs: configs,
-                mappings: mappings,
-            }
+
+        def init(&block)
+            load_configs(block)
+            load_models
         end
 
         def configs
-            return Rails.application.config.elastify[:configs]
-        end 
+            Rails.application.config.elastify_configs = Elastify::Config.new unless Rails.application.config.respond_to?(:elastify_configs)
+            Rails.application.config.elastify_configs
+        end
 
-        def mappings
-            return Rails.application.config.elastify[:mappings]
-        end 
+        def models
+            Rails.application.config.elastify_models = {} unless Rails.application.config.respond_to?(:elastify_models)
+            Rails.application.config.elastify_models
+        end
+
+        def register_model(model_name)
+            model = Elastify::Model.new
+            yield(model) if block_given?
+            models[model_name] = model
+        end
+
+        private
+            def load_configs(block)
+                block.call(configs) if block.present?
+            end
+
+            def load_models
+                path = Rails.root.join('config/elastify')
+                if Dir.exist?(path)
+                    Dir.glob("#{path}/*.rb") do |file_path|
+                        require file_path
+                    end
+                end
+            end
     end
-    
-    class ElastifyError < StandardError; end
 end

@@ -8,29 +8,46 @@ module Elastify::ActiveRecordExtensions
     module ClassMethods
         extend ActiveSupport::Concern
 
-        def elastify_setup(&block)
+        def elastify_model(model_name)
             include Elastify::ActiveRecordExtensions::LocalMethods
             cattr_accessor :elastify_options
             attr_accessor :elastify_serialized_document
 
-            config = Elastify::Configurators::Model.new
-            yield(config) if block_given?
+            model = Elastify.models[model_name.to_sym]
+            yield(model) if block_given?
             self.elastify_options = {} if self.elastify_options.blank?
-            self.elastify_options[:base_url] = Elastify.configs[:base_url]
-            self.elastify_options[:index] = config.opt_index if config.opt_index.present?
-            self.elastify_options[:type] = config.opt_type if config.opt_type.present?
-            self.elastify_options[:map] = config.opt_mapping if config.opt_mapping.present?
-            self.elastify_options[:decode] = config.opt_decode if config.opt_decode.present?
-            self.elastify_options[:encode] = config.opt_encode if config.opt_encode.present?
-            self.elastify_options[:scroll_timeout] = config.opt_scroll_timeout if config.opt_scroll_timeout.present?
+            self.elastify_options[:base_url] = Elastify.configs.base_url
+            self.elastify_options[:index] = model.opt_index if model.opt_index.present?
+            self.elastify_options[:type] = model.opt_type if model.opt_type.present?
+            self.elastify_options[:map] = model.opt_mapping if model.opt_mapping.present?
+            self.elastify_options[:decode] = model.opt_decode if model.opt_decode.present?
+            self.elastify_options[:encode] = model.opt_encode if model.opt_encode.present?
+            self.elastify_options[:scroll_timeout] = model.opt_scroll_timeout if model.opt_scroll_timeout.present?
+        end
+
+        def elastify_setup
+            include Elastify::ActiveRecordExtensions::LocalMethods
+            cattr_accessor :elastify_options
+            attr_accessor :elastify_serialized_document
+
+            model = Elastify::Model.new
+            yield(model) if block_given?
+            self.elastify_options = {} if self.elastify_options.blank?
+            self.elastify_options[:base_url] = Elastify.configs.base_url
+            self.elastify_options[:index] = model.opt_index if model.opt_index.present?
+            self.elastify_options[:type] = model.opt_type if model.opt_type.present?
+            self.elastify_options[:map] = model.opt_mapping if model.opt_mapping.present?
+            self.elastify_options[:decode] = model.opt_decode if model.opt_decode.present?
+            self.elastify_options[:encode] = model.opt_encode if model.opt_encode.present?
+            self.elastify_options[:scroll_timeout] = model.opt_scroll_timeout if model.opt_scroll_timeout.present?
         end
 
         def elastify_search(dsl: nil, scroll_timeout: nil)
-            return Elastify::Helpers::ElasticSearch::Document.new(self.elastify_options).search(dsl, scroll_timeout)
+            Elastify::Helpers::ElasticSearch::Document.new(self.elastify_options).search(dsl, scroll_timeout)
         end
 
         def elastify_scroll(scroll_id: nil, scroll_timeout: nil)
-            return Elastify::Helpers::ElasticSearch::Document.new(self.elastify_options).scroll(scroll_id, scroll_timeout)
+            Elastify::Helpers::ElasticSearch::Document.new(self.elastify_options).scroll(scroll_id, scroll_timeout)
         end
     end
 
@@ -39,7 +56,7 @@ module Elastify::ActiveRecordExtensions
 
         def elastify_create
             run_callbacks(:elastify_sync) do
-                if not self.elastify_serialized_document.blank?
+                unless self.elastify_serialized_document.blank?
                     run_callbacks(:elastify_create) do
                         Elastify::Helpers::ElasticSearch::Document.new(self.class.elastify_options).create(self.elastify_serialized_document)
                     end
@@ -49,7 +66,7 @@ module Elastify::ActiveRecordExtensions
 
         def elastify_update
             run_callbacks(:elastify_sync) do
-                if not self.elastify_serialized_document.blank?
+                unless self.elastify_serialized_document.blank?
                     run_callbacks(:elastify_update) do
                         Elastify::Helpers::ElasticSearch::Document.new(self.class.elastify_options).update(self.elastify_serialized_document)
                     end
@@ -59,7 +76,7 @@ module Elastify::ActiveRecordExtensions
 
         def elastify_destroy
             run_callbacks(:elastify_sync) do
-                if not self.elastify_serialized_document.blank?
+                unless self.elastify_serialized_document.blank?
                     run_callbacks(:elastify_destroy) do
                         Elastify::Helpers::ElasticSearch::Document.new(self.class.elastify_options).destroy(self.elastify_serialized_document)
                     end
@@ -90,9 +107,9 @@ module Elastify::ActiveRecordExtensions
                 if self.class.elastify_options[:encode].present?
                     encoder = self.class.elastify_options[:encode]
                 elsif self.respond_to?(:to_serial)
-                    encoder = Proc.new { |item| next item.to_serial }
+                    encoder = Proc.new { |i| next i.to_serial }
                 else
-                    encoder = Proc.new { |item| next item.serializable_hash }
+                    encoder = Proc.new { |i| next i.serializable_hash }
                 end
                 item.elastify_serialized_document = encoder.call(item)
             end
